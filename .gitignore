@@ -11,3 +11,5 @@ token.json
 
 # Virtual environment
 .venv/
+
+.idea/

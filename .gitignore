@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+
+# Gmail OAuth files
+credentials.json
+token.json
+
+# Virtual environment
+.venv/

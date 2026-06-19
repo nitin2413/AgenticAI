@@ -33,3 +33,6 @@ class UploadResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     version: str = "1.0.0"
+
+class GmailResponse(BaseModel):
+    summary: str

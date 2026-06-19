@@ -21,13 +21,18 @@ class Settings(BaseSettings):
 
     # Redis
     REDIS_URL: Optional[str] = "redis://localhost:6379"
+    REDIS_HOST: str = "birds-megabright-sail -58709.db.redis.io"
+    REDIS_PORT: int  = 10409
+    REDIS_USERNAME: str = "default"
+    REDIS_PASSWORD: str  = "oWmwqC0rcQ6GFq2lli4eBaYMJ4EWBaJa"
 
     # PostgreSQL
     POSTGRES_URL: Optional[str] = None
 
     # Gmail
-    GMAIL_CREDENTIALS_PATH: Optional[str] = "./credentials.json"
+    GMAIL_CREDENTIALS_PATH: Optional[str] = "credentials.json"
     GMAIL_TOKEN_PATH : Optional[str] = "./token.json"
+    SCOPES : str = "https://www.googleapis.com/auth/gmail.readonly"
 
     class Config:
         env_file = ".env"

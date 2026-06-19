@@ -4,11 +4,13 @@ from schemas.request_models import (
     ChatRequest, ChatResponse,
     RAGQueryRequest, RAGQueryResponse,
     UploadResponse, HealthResponse,
+    GmailResponse,
 )
 from rag.chunking import process_document
 from agents.rag_agent import run_rag_agent
 from rag.vector_store import add_documents
 from agents.orchestrator import run_orchestrator
+from agents.gmail_agent import run_gmail_agent
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -62,4 +64,8 @@ async def rag_query(request: RAGQueryRequest):
 @router.get("/gmail/summary")
 async def gmail_summary():
     # Gmail agent will be wired here
-    raise HTTPException(status_code=501, detail="Gmail agent not yet implemented")
+    try :
+        summary = run_gmail_agent()
+        return GmailResponse(summary=summary)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

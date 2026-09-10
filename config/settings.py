@@ -1,13 +1,17 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
+from pathlib import Path
+
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+
 
 class Settings(BaseSettings):
     # App
-    APP_NAME: str = "Multi-Agent AI System"
+    APP_NAME: str = "Nass Agent"
     DEBUG: bool = False
 
     # LLM
-    OPENAI_API_KEY: str = "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"
+    OPENAI_API_KEY: str
     OPENAI_MODEL: str = "gpt-3.5-turbo"
     BASE_URL: str = "https://openrouter.ai/api/v1"
     MAX_TOKEN: int  = 4096
@@ -21,21 +25,37 @@ class Settings(BaseSettings):
 
     # Redis
     REDIS_URL: Optional[str] = "redis://localhost:6379"
-    REDIS_HOST: str = "birds-megabright-sail -58709.db.redis.io"
-    REDIS_PORT: int  = 10409
-    REDIS_USERNAME: str = "default"
-    REDIS_PASSWORD: str  = "oWmwqC0rcQ6GFq2lli4eBaYMJ4EWBaJa"
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_USERNAME: str
+    REDIS_PASSWORD: str
 
     # PostgreSQL
     POSTGRES_URL: Optional[str] = None
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
 
     # Gmail
     GMAIL_CREDENTIALS_PATH: Optional[str] = "credentials.json"
     GMAIL_TOKEN_PATH : Optional[str] = "./token.json"
     SCOPES : str = "https://www.googleapis.com/auth/gmail.readonly"
 
+    def get_llm_config(self) -> dict:
+        return {
+            "provider": "openai",
+            "model": self.OPENAI_MODEL,
+            "api_key": self.OPENAI_API_KEY,
+            "base_url": self.BASE_URL,
+            "temperature": 0.7,
+            "max_tokens": self.MAX_TOKEN,
+        }
+
     class Config:
-        env_file = ".env"
+        env_file = str(ENV_PATH)  # Fixed: absolute path to .env
+        env_file_encoding = "utf-8"
         extra = "ignore"
 
 

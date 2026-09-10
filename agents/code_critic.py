@@ -1,17 +1,10 @@
-from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from config.settings import settings
+from llm_provider.llm_initializer import get_llm_model
 import json
 
-def run_code_critic(user_request , generated_code):
-    model = ChatOpenAI(
-        model = settings.OPENAI_MODEL,
-        base_url=settings.BASE_URL,
-        api_key=settings.OPENAI_API_KEY,
-        temperature= 0,
-        max_tokens=2048
-    )
+def run_code_critic(user_request, generated_code, provider = None, model_name = None, api_key = None):
+    model = get_llm_model(provider=provider, model=model_name, api_key=api_key, temperature=0, max_tokens=2048)
     prompt = ChatPromptTemplate.from_messages([
         (
             "system",
@@ -44,8 +37,8 @@ def run_code_critic(user_request , generated_code):
         (
             "human",
     """
-    User request:{user_request}
-    Generated code:{generated_code}
+    User request: {user_request}
+    Generated code: {generated_code}
     """
         )
     ])

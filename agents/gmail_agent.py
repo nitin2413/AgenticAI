@@ -1,49 +1,65 @@
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from tools.gmail_tools import fetch_recent_emails
-from langchain_core.output_parsers import StrOutputParser
-from config.settings import settings
+"""
+Gmail Agent with dynamic LLM support
+"""
 
-def run_gmail_agent(max_email = 10) -> str:
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from tools.gmail_tools import fetch_recent_emails
+from llm_provider.llm_initializer import get_llm_model
+from typing import List, Dict, Any, Optional
+
+
+def run_gmail_agent(
+    max_email: int = 10,
+    provider: Optional[str] = None,
+    model_name: Optional[str] = None,
+    emails: Optional[List[Dict[str, Any]]] = None,
+    api_key: Optional[str] = None,
+) -> str:
+    """
+    Summarize emails using the selected LLM provider and model.
+    If emails list is not provided, it fetches recent emails from the inbox.
+    """
     try:
-        emails = fetch_recent_emails(max_email)
+        if emails is None:
+            fetched = fetch_recent_emails(max_email)
+            if isinstance(fetched, str):
+                return fetched
+            emails = fetched
 
         if not emails:
-            return ("No email found in your inbox")
+            return "No emails found to summarize."
 
+        # Format email data for the prompt
         formatted = "\n\n".join(
-            f"Email {i +1}:\nFrom: {email['sender']}\nDate: {email['date']}\nSubject: {email['subject']}\nPreview: {email['snippet']}"
-            for i , email in enumerate(emails)
+            f"Email {i + 1}:\nFrom: {email.get('sender')}\nDate: {email.get('date')}\nSubject: {email.get('subject')}\nPreview: {email.get('snippet')}"
+            for i, email in enumerate(emails)
         )
 
-        llm = ChatOpenAI(
-            model=settings.OPENAI_MODEL,
-            base_url=settings.BASE_URL,
-            api_key=settings.OPENAI_API_KEY,
-            max_tokens=2048
+        # Retrieve the dynamic model based on provider and model_name
+        llm = get_llm_model(
+            provider=provider,
+            model=model_name,
+            api_key=api_key,
+            temperature=0.0,  # lower temp for summary accuracy
         )
 
         prompt = ChatPromptTemplate.from_messages([
             ("system",
-             "You are an email assistant. Read the provided emails and create a concise summary for each email. "
-             "Highlight the main purpose, important details, and any action items. "
-             "Return the response in the exact format below:\n\n"
-             "Email 1:\n"
-             "From: <sender>\n"
-             "Date: <date>\n"
-             "Subject: <subject>\n"
-             "Summary: <2-3 sentence summary>\n"
-             "Action Required: <Yes/No and brief reason>\n\n"
-             "Repeat the same structure for all emails. "
-             "Do not add markdown, bullet points, or extra explanations."
+             "You are a helpful assistant specialized in managing and summarizing emails. "
+             "Read the provided emails and create a clear, structured summary digest. "
+             "For each email, output:\n"
+             "1. Sender, Date, and Subject\n"
+             "2. A concise 2-3 sentence summary of the contents\n"
+             "3. A status indicating if action is required (Yes/No and action item detail if Yes)\n\n"
+             "Do not add any preamble or conversational fillers. Output the list directly."
              ),
-            ("human", "{query}")
+            ("human", "Summarize these emails:\n\n{query}")
         ])
 
         chain = prompt | llm | StrOutputParser()
-
         response = chain.invoke({"query": formatted})
         return response
 
     except Exception as e:
-        return f"Error occurred while running gmail agent {e}"
+        return f"Error occurred while running Gmail Agent: {e}"

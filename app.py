@@ -31,6 +31,11 @@ app.include_router(router, prefix="/api/v1")
 @app.on_event("startup")
 async def startup():
     logger.info(f"Starting {settings.APP_NAME}")
+    try:
+        from memory.postgres_memory import init_user_table
+        init_user_table()
+    except Exception as e:
+        logger.error(f"Failed to initialize user database: {e}")
 
 
 @app.on_event("shutdown")

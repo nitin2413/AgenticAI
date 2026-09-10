@@ -8,8 +8,17 @@ __pycache__/
 # Gmail OAuth files
 credentials.json
 token.json
+token_*.json
 
 # Virtual environment
 .venv/
 
+# IDE / OS
 .idea/
+.DS_Store
+
+# Database
+chroma_db/
+
+# Scratch / temp
+scratch/

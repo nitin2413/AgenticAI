@@ -15,16 +15,15 @@ async def save_upload_file(upload_file):
 
 def load_document(file_path):
     try :
-        if file_path.endswith(".pdf"):
+        ext = file_path.lower()
+        if ext.endswith(".pdf"):
             loader = PyPDFLoader(file_path=file_path)
-        elif file_path.endswith(".txt"):
-            loader = TextLoader(file_path=file_path)
-        elif file_path.endswith(".docx"):
+        elif ext.endswith(".txt") or ext.endswith(".md"):
+            loader = TextLoader(file_path=file_path, encoding="utf-8")
+        elif ext.endswith(".docx"):
             loader = Docx2txtLoader(file_path=file_path)
-        elif file_path.endswith(".md"):
-            loader = UnstructuredMarkdownLoader(file_path=file_path)
         else:
-            raise ValueError(f"Unsupported file format:{file_path}")
+            raise ValueError(f"Unsupported file format: {file_path}")
         docs = loader.load()
         return docs
     except Exception as e:

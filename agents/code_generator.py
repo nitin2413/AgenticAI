@@ -1,16 +1,9 @@
-from langchain_openai import ChatOpenAI
-from config.settings import settings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from llm_provider.llm_initializer import get_llm_model
 
-def run_code_generator( query, project_context = None , feedback = None ):
-    model = ChatOpenAI(
-            model=settings.OPENAI_MODEL,
-            max_tokens=2048 ,
-            api_key=settings.OPENAI_API_KEY,
-            base_url=settings.BASE_URL,
-            temperature=0
-    )
+def run_code_generator( query, project_context = None , feedback = None, provider = None, model_name = None, api_key = None ):
+    model = get_llm_model(provider=provider, model=model_name, api_key=api_key, temperature=0, max_tokens=2048)
     # context = code_context_retriever(query) we are not calling it inside as we use it already in the start of function
 
     if project_context is not None and feedback is not None:

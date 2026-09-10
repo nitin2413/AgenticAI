@@ -1,19 +1,11 @@
-from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from tools.web_search import web_search
-from config.settings import settings
+from llm_provider.llm_initializer import get_llm_model
 
 def run_research_agent(query):
     try:
-        model = ChatOpenAI(
-            api_key=settings.OPENAI_API_KEY,
-            model = settings.OPENAI_MODEL,
-            base_url=settings.BASE_URL,
-            temperature=0,
-            max_tokens=2048
-
-        )
+        model = get_llm_model(temperature=0, max_tokens=2048)
 
         web_search_findings = web_search.run(query)
         prompt = ChatPromptTemplate.from_template("""
